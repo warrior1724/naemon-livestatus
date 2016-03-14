@@ -77,7 +77,8 @@ TableHosts::TableHosts(bool by_group)
 
 void TableHosts::addColumns(Table *table, string prefix, int indirect_offset)
 {
-
+    int extra_offset = -1;
+    
     host hst;
     char *ref = (char *)&hst;
     table->addColumn(new OffsetIntColumn(prefix + "id",
@@ -250,14 +251,15 @@ void TableHosts::addColumns(Table *table, string prefix, int indirect_offset)
 
     table->addColumn(new HostContactsColumn(prefix + "contacts",
                 "A list of all contacts of this host, either direct or via a contact group", indirect_offset));
+
     table->addColumn(new DownCommColumn(prefix + "downtimes",
-                "A list of the ids of all scheduled downtimes of this host", indirect_offset, true, false));
+                "A list of the ids of all scheduled downtimes of this host", indirect_offset, true, false, false, false, extra_offset));
     table->addColumn(new DownCommColumn(prefix + "downtimes_with_info",
-                "A list of the all scheduled downtimes of the host with id, author and comment", indirect_offset, true, true));
+                "A list of the all scheduled downtimes of the host with id, author and comment", indirect_offset, true, true, true, false, extra_offset));
     table->addColumn(new DownCommColumn(prefix + "comments",
-                "A list of the ids of all comments of this host", indirect_offset, false, false));
+                "A list of the ids of all comments of this host", indirect_offset, false, false , false, false, extra_offset));
     table->addColumn(new DownCommColumn(prefix + "comments_with_info",
-                "A list of all comments of the host with id, author and comment", indirect_offset, false, true));
+                "A list of all comments of the host with id, author and comment", indirect_offset, false, true, true, false, extra_offset));
 
     table->addColumn(new CustomVarsColumn(prefix + "custom_variable_names",
                 "A list of the names of all custom variables", (char *)(&hst.custom_variables) - ref, indirect_offset, CVT_VARNAMES));
@@ -323,6 +325,17 @@ void TableHosts::addColumns(Table *table, string prefix, int indirect_offset)
     table->addColumn(new ServicelistColumn(prefix + "services_with_info",
                 "A list of all services including detailed information about each service",    (char *)(&hst.services) - ref, indirect_offset, false, 2));
 
+    table->addColumn(new DownCommColumn(
+            prefix + "comments_with_extra_info",
+                    "A list of all comments of the host with id, author, comment, entry "
+                            "type and entry time",
+                                    indirect_offset, false, false, true, true, extra_offset));
+    table->addColumn(new DownCommColumn(
+            prefix + "comments_with_extra_info",
+                    "A list of all comments of the host with id, author, comment, entry "
+                            "type and entry time",
+                                    indirect_offset, false, false, true, true, extra_offset));
+                                    
     table->clearNatSort();
     table->addNatSort( prefix + "name" );
 }
